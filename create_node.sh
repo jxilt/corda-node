@@ -4,6 +4,6 @@ then
     exit
 fi
 
-mkdir $1
-cp resources/node.conf $1/node.conf
-curl -L https://r3.bintray.com/corda/net/corda/corda/4.4/corda-4.4.jar --output $1/corda.jar
+mkdir generated_nodes
+cp resources/node.conf generated_nodes/$1_node.conf
+curl -L https://software.r3.com/artifactory/corda-releases/net/corda/corda-tools-network-bootstrapper/4.4/corda-tools-network-bootstrapper-4.4.jar --output generated_nodes/bootstrapper.jar
