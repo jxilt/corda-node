@@ -6,6 +6,10 @@
 
 * bootstrapper doesn't clean up after itself. leaves three log files behind
 
+* mock network tests take forever to complete. the output is still incredibly noisy
+
+* got this weird error in flow tests: "net.corda.core.flows.UnexpectedFlowEndException: Tried to access ended session SessionId(toLong=-6068195477517242809) with empty buffer." I think it's referring to the lack of a ReceiveFinalityFlow subflow on the responder side
+
 # bugs
 
 * this page refers to a webserver JAR that doesn't exist (https://docs.corda.net/docs/corda-os/4.4/generating-a-node.html)
