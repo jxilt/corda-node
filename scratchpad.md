@@ -12,6 +12,8 @@
 
 * having to set quasar for driver tests is difficult
 
+* this page doesn't link to the docker image: https://docs.corda.net/docs/corda-os/4.4/docker-image.html
+
 # bugs
 
 * this page refers to a webserver JAR that doesn't exist (https://docs.corda.net/docs/corda-os/4.4/generating-a-node.html)
