@@ -1,8 +1,10 @@
 package jxilt
 
+import jxilt.states.AssetState
 import net.corda.core.identity.CordaX500Name
 import net.corda.core.utilities.getOrThrow
 import net.corda.testing.core.TestIdentity
+import net.corda.testing.core.singleIdentity
 import net.corda.testing.driver.DriverDSL
 import net.corda.testing.driver.DriverParameters
 import net.corda.testing.driver.NodeHandle
@@ -16,14 +18,18 @@ class DriverBasedTest {
     private val bankB = TestIdentity(CordaX500Name("BankB", "", "US"))
 
     @Test
-    fun `node test`() = withDriver {
-        val (partyAHandle, partyBHandle) = startNodes(bankA, bankB)
+    fun `client can issue assets`() = withDriver {
+        val (partyAHandle, _) = startNodes(bankA, bankB)
+        val partyARpcOps = partyAHandle.rpc
 
-        val rpcAddress = partyAHandle.rpcAddress
-        val rpcUsername = partyAHandle.rpcUsers[0].username
-        val rpcPassword = partyAHandle.rpcUsers[0].password
+        val quantity = 3
+        IssueOp(partyARpcOps).execute(listOf(quantity.toString()))
 
-        // TODO: Use the above to test the client.
+        val assets = partyARpcOps.vaultQuery(AssetState::class.java).states
+        assertEquals(1, assets.size)
+        val asset = assets.single().state.data
+        assertEquals(quantity, asset.quantity)
+        assertEquals(partyAHandle.nodeInfo.singleIdentity(), asset.owner)
     }
 
     private fun withDriver(test: DriverDSL.() -> Unit) = driver(
