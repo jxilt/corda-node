@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 
 class NodeInfo:
@@ -28,7 +29,7 @@ def generate_node_confs():
         adminAddress = "{ip_address}:10004"
     }}""".format(name = node.name, ip_address = node.ip_address)
 
-        f = open("generated_network/" + node.name + "_node.conf", "w")
+        f = open(node.name + "_node.conf", "w")
         try:
             f.write(node_conf)
         finally:
@@ -42,13 +43,13 @@ def download_and_run_bootstrapper():
     subprocess.run(["java", "-jar", "bootstrapper.jar"])
 
 def clean_up():
-    os.remove(".cache")
+    shutil.rmtree(".cache")
     os.remove("checkpoints_agent-*.log")
     os.remove("diagnostic-*.log")
     os.remove("node-*.log")
 
-# os.mkdir("generated_network")
+os.mkdir("generated_network")
 os.chdir("generated_network")
-# generated_node_confs()
-# download_and_run_bootstrapper()
+generate_node_confs()
+download_and_run_bootstrapper()
 clean_up()

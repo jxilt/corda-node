@@ -6,3 +6,4 @@ cordapp/.idea/
 cordapp/.settings/
 cordapp/**/build/**
 cordapp/**/logs/**
+generated_network/
