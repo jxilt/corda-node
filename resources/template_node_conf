@@ -1,0 +1,6 @@
+myLegalName = "O=$name,L=New York,C=US"
+p2pAddress = "$name:10200"
+rpcSettings {
+    address = "0.0.0.0:10201"
+    adminAddress = "0.0.0.0:10202"
+}

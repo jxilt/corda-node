@@ -8,11 +8,11 @@ from string import Template
 BOOTSTRAPPER_URL = "https://software.r3.com/artifactory/corda-releases/net/corda/corda-tools-network-bootstrapper/4.4/corda-tools-network-bootstrapper-4.4.jar"
 
 class NodeInfo:
-    def __init__(self, name, ip_address):
+    def __init__(self, name, rpc_port):
         self.name = name
-        self.ip_address = ip_address
+        self.rpc_port = rpc_port
 
-def generate_node_confs():
+def gen_node_confs_and_docker_compose():
     nodes = []
 
     while True:
@@ -20,27 +20,30 @@ def generate_node_confs():
         if name == "exit":
             break
 
-        ip_address = input("New node IP address (type 'exit' when done): ")
-        if ip_address == "exit":
+        rpc_port = input("New node RPC port (type 'exit' when done): ")
+        if rpc_port == "exit":
             break
 
-        nodes.append(NodeInfo(name, ip_address))
+        nodes.append(NodeInfo(name, rpc_port))
 
-    template_node_conf_file = open("../resources/template_node.conf", "r")
-    template_node_conf = Template(template_node_conf_file.read())
+    with open("../resources/template_node_conf", "r") as input_node_conf, \
+        open("../resources/template_docker_compose", "r") as input_docker_compose, \
+        open("docker-compose.yml", "w") as output_docker_compose:
 
-    try:
+        template_node_conf = Template(input_node_conf.read())
+        template_docker_compose = Template(input_docker_compose.read())
+
+        output_docker_compose.write("version: '3.0'\r\n\r\nservices:\r\n")
+
         for node in nodes:
-            substitutions = {"name": node.name, "ip_address": node.ip_address}
-            node_conf = template_node_conf.safe_substitute(substitutions)
-
-            output_node_conf = open(node.name + "_node.conf", "w")
-            try:
+            node_conf = template_node_conf.safe_substitute(
+                {"name": node.name})
+            with open(node.name + "_node.conf", "w") as output_node_conf:
                 output_node_conf.write(node_conf)
-            finally:
-                output_node_conf.close()
-    finally:
-        template_node_conf_file.close()
+
+            docker_compose_segment = template_docker_compose.safe_substitute(
+                {"name": node.name, "rpc_port": node.rpc_port})
+            output_docker_compose.write(docker_compose_segment)
 
 def download_and_run_bootstrapper():
     bootstrapper_url = BOOTSTRAPPER_URL
@@ -52,10 +55,10 @@ def download_and_run_bootstrapper():
 def clean_up():
     shutil.rmtree(".cache")
     for file in Path(".").glob("*.log"):
-        pathlib.remove(file)
+        file.unlink()
 
 os.mkdir("generated_network")
 os.chdir("generated_network")
-generate_node_confs()
+gen_node_confs_and_docker_compose()
 download_and_run_bootstrapper()
 clean_up()
